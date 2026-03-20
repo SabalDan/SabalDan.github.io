@@ -373,29 +373,81 @@
     line-height: 1.3; display: block;
   }
 
-  /* ── FIELDWORK PHOTO STRIP ── */
-  .photo-strip {
-    margin-top: 3rem;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+  /* ── RESEARCH IN ACTION GALLERY ── */
+  #gallery { background: var(--ink); }
+  #gallery .section-label { color: var(--light-gold); }
+  #gallery .section-title { color: var(--ivory); }
+  .gallery-intro {
+    font-size: 1rem; color: rgba(245,240,232,0.6);
+    max-width: 640px; margin-bottom: 3rem; font-weight: 300; line-height: 1.8;
   }
-  .photo-strip-item {
-    overflow: hidden; aspect-ratio: 4/3;
-    border: 1px solid rgba(245,240,232,0.1);
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 280px;
+    gap: 6px;
+    grid-auto-flow: dense;
   }
-  .photo-strip-item img {
+  .gallery-item {
+    position: relative; overflow: hidden;
+    cursor: pointer;
+  }
+  .gallery-item.span-2 { grid-column: span 2; }
+  .gallery-item.tall { grid-row: span 2; }
+  .gallery-item img {
     width: 100%; height: 100%; object-fit: cover;
-    filter: saturate(0.8) brightness(0.9);
-    transition: filter 0.3s, transform 0.3s;
+    transition: transform 0.5s ease, filter 0.5s ease;
+    filter: saturate(0.75) brightness(0.85);
   }
-  .photo-strip-item:hover img {
+  .gallery-item:hover img {
+    transform: scale(1.05);
     filter: saturate(1) brightness(1);
-    transform: scale(1.03);
   }
-  .photo-strip-caption {
-    font-size: 0.7rem; color: rgba(245,240,232,0.4);
-    letter-spacing: 0.06em; margin-top: 0.4rem;
-    font-style: italic;
+  .gallery-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 2rem 1.2rem 1rem;
+    background: linear-gradient(transparent, rgba(0,0,0,0.75));
+    transform: translateY(100%);
+    transition: transform 0.35s ease;
   }
+  .gallery-item:hover .gallery-overlay {
+    transform: translateY(0);
+  }
+  .gallery-tag {
+    font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--light-gold); margin-bottom: 0.3rem; display: block;
+  }
+  .gallery-caption {
+    font-size: 0.82rem; color: rgba(255,255,255,0.9);
+    font-weight: 300; line-height: 1.4;
+  }
+
+  /* Lightbox */
+  .lightbox-overlay {
+    display: none; position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,0.92); backdrop-filter: blur(6px);
+    justify-content: center; align-items: center;
+    padding: 2rem; cursor: pointer;
+  }
+  .lightbox-overlay.active { display: flex; }
+  .lightbox-overlay img {
+    max-width: 90vw; max-height: 85vh;
+    object-fit: contain; border: 1px solid rgba(255,255,255,0.1);
+  }
+  .lightbox-caption {
+    position: absolute; bottom: 1.5rem; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.85rem; color: rgba(255,255,255,0.7);
+    font-weight: 300; text-align: center; max-width: 600px;
+  }
+  .lightbox-close {
+    position: absolute; top: 1.5rem; right: 2rem;
+    font-size: 1.8rem; color: rgba(255,255,255,0.5);
+    cursor: pointer; background: none; border: none;
+    transition: color 0.2s;
+  }
+  .lightbox-close:hover { color: #fff; }
 
   /* ── CONTACT ── */
   #contact {
@@ -477,7 +529,10 @@
     .about-grid, .affil-cols { grid-template-columns: 1fr; gap: 2.5rem; }
     .research-grid { grid-template-columns: 1fr; }
     .species-grid { grid-template-columns: 1fr; }
-    .photo-strip { grid-template-columns: 1fr; }
+    .gallery-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 200px; }
+    .gallery-item.span-2 { grid-column: span 1; }
+    .gallery-item.tall { grid-row: span 1; }
+    .gallery-overlay { transform: translateY(0); }
     .funding-logos { grid-template-columns: repeat(2, 1fr); }
     .edu-item { grid-template-columns: 1fr; gap: 0.3rem; }
     footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.5rem 2rem; }
@@ -497,6 +552,7 @@
     <li><a href="#education" onclick="document.querySelector('.nav-links').classList.remove('open'); document.querySelector('.hamburger').classList.remove('active');">Education</a></li>
     <li><a href="#research" onclick="document.querySelector('.nav-links').classList.remove('open'); document.querySelector('.hamburger').classList.remove('active');">Research</a></li>
     <li><a href="#fieldwork" onclick="document.querySelector('.nav-links').classList.remove('open'); document.querySelector('.hamburger').classList.remove('active');">Focal Taxa</a></li>
+    <li><a href="#gallery" onclick="document.querySelector('.nav-links').classList.remove('open'); document.querySelector('.hamburger').classList.remove('active');">Gallery</a></li>
     <li><a href="#publications" onclick="document.querySelector('.nav-links').classList.remove('open'); document.querySelector('.hamburger').classList.remove('active');">Publications</a></li>
     <li><a href="#affiliations" onclick="document.querySelector('.nav-links').classList.remove('open'); document.querySelector('.hamburger').classList.remove('active');">Affiliations</a></li>
     <li><a href="#contact" onclick="document.querySelector('.nav-links').classList.remove('open'); document.querySelector('.hamburger').classList.remove('active');">Contact</a></li>
@@ -686,23 +742,132 @@
       </div>
     </div>
 
-    <!-- Field photos -->
-    <div class="photo-strip reveal">
-      <div>
-        <div class="photo-strip-item">
-          <img src="fieldwork.jpg" alt="Daniel Tucker conducting fieldwork at Montgomery Botanical Center">
+  </div>
+</section>
+
+<!-- ── RESEARCH IN ACTION ── -->
+<section id="gallery">
+  <div class="container">
+    <span class="section-label reveal">Research in Action</span>
+    <h2 class="section-title reveal">Field, Garden &amp; Lab</h2>
+    <p class="gallery-intro reveal">Conservation botany demands range — from wading through sawgrass prairies to extract leaf tissue, to examining herbarium specimens under a dissecting scope. Here is a selection of moments from my ongoing research across South Florida.</p>
+
+    <div class="gallery-grid">
+
+      <div class="gallery-item span-2 tall reveal" onclick="openLightbox(this)">
+        <img src="gallery-field-survey.jpg" alt="Daniel Tucker in full field gear surveying in the Everglades" loading="lazy">
+        <div class="gallery-overlay">
+          <span class="gallery-tag">Fieldwork</span>
+          <span class="gallery-caption">Surveying for wild <em>Sabal</em> populations in the pine rocklands of South Florida</span>
         </div>
-        <p class="photo-strip-caption">Fieldwork in the pine rocklands</p>
       </div>
-      <div>
-        <div class="photo-strip-item">
-          <img src="specimen-work.jpg" alt="Daniel Tucker examining botanical specimens in the field">
+
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="gallery-vouchering.jpg" alt="Vouchering a Sabal specimen at North Key Largo" loading="lazy">
+        <div class="gallery-overlay">
+          <span class="gallery-tag">Taxonomy</span>
+          <span class="gallery-caption">Vouchering <em>Sabal</em> specimens at North Key Largo for herbarium deposit</span>
         </div>
-        <p class="photo-strip-caption">Morphological study of palm specimens</p>
       </div>
+
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="gallery-specimen.jpg" alt="Examining a botanical specimen in the field" loading="lazy">
+        <div class="gallery-overlay">
+          <span class="gallery-tag">Collections</span>
+          <span class="gallery-caption">Examining preserved specimens at Montgomery Botanical Center</span>
+        </div>
+      </div>
+
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="gallery-data-collection.jpg" alt="GPS data collection near a juvenile Sabal palm" loading="lazy">
+        <div class="gallery-overlay">
+          <span class="gallery-tag">Fieldwork</span>
+          <span class="gallery-caption">GPS data collection and population survey at a wild <em>Sabal</em> site</span>
+        </div>
+      </div>
+
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="gallery-population.jpg" alt="UV fluorescence imaging of a cycad cone revealing pollinator dye traces" loading="lazy">
+        <div class="gallery-overlay">
+          <span class="gallery-tag">Laboratory</span>
+          <span class="gallery-caption">UV fluorescence imaging of a cycad cone revealing pollinator dye traces</span>
+        </div>
+      </div>
+
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="gallery-collections.jpg" alt="Collecting Sabal specimens in the field with a colleague" loading="lazy">
+        <div class="gallery-overlay">
+          <span class="gallery-tag">Fieldwork</span>
+          <span class="gallery-caption">Collecting <em>Sabal</em> specimens in the field with research collaborators</span>
+        </div>
+      </div>
+
+      <div class="gallery-item tall reveal" onclick="openLightbox(this)">
+        <img src="gallery-fieldportrait.jpg" alt="Daniel Tucker in field gear among Sabal palms" loading="lazy">
+        <div class="gallery-overlay">
+          <span class="gallery-tag">Fieldwork</span>
+          <span class="gallery-caption">Botanical survey among wild <em>Sabal</em> populations in South Florida</span>
+        </div>
+      </div>
+
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="gallery-labcoat.jpg" alt="Daniel Tucker and colleague staining ovules under a fume hood" loading="lazy">
+        <div class="gallery-overlay">
+          <span class="gallery-tag">Laboratory</span>
+          <span class="gallery-caption">Staining ovules for embryological analysis at Montgomery Botanical Center</span>
+        </div>
+      </div>
+
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="gallery-palmclimb.jpg" alt="Daniel Tucker examining a palm trunk in the wild" loading="lazy">
+        <div class="gallery-overlay">
+          <span class="gallery-tag">Field Research</span>
+          <span class="gallery-caption">Examining palm morphology and trunk characteristics in a wild population</span>
+        </div>
+      </div>
+
+      <div class="gallery-item span-2 reveal" onclick="openLightbox(this)">
+        <img src="gallery-group.jpg" alt="Survey team with Dr. Michael Ross and FIU interns at a Sabal research site" loading="lazy">
+        <div class="gallery-overlay">
+          <span class="gallery-tag">Collaboration</span>
+          <span class="gallery-caption">Surveying a <em>Sabal</em> research site with Dr. Michael Ross and FIU undergraduate interns</span>
+        </div>
+      </div>
+
+      <div class="gallery-item tall reveal" onclick="openLightbox(this)">
+        <img src="gallery-schlieren.jpg" alt="Schlieren imaging of thermal convection around a cycad cone" loading="lazy">
+        <div class="gallery-overlay">
+          <span class="gallery-tag">Imaging</span>
+          <span class="gallery-caption">Schlieren imaging reveals thermal convection plumes from a thermogenic cycad cone</span>
+        </div>
+      </div>
+
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="gallery-tissueculture.jpg" alt="Daniel Tucker teaching a tissue culture class at Montgomery Botanical Center" loading="lazy">
+        <div class="gallery-overlay">
+          <span class="gallery-tag">Teaching</span>
+          <span class="gallery-caption">Teaching plant tissue culture techniques at Montgomery Botanical Center</span>
+        </div>
+      </div>
+
+      <div class="gallery-item reveal" onclick="openLightbox(this)">
+        <img src="gallery-gistraining.jpg" alt="Training FIU undergraduate interns in GIS and RTK GPS surveying" loading="lazy">
+        <div class="gallery-overlay">
+          <span class="gallery-tag">Mentorship</span>
+          <span class="gallery-caption">Training FIU undergraduate interns in GIS and RTK GPS surveying at MBC</span>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
+
+<!-- Lightbox -->
+<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
+  <img id="lightbox-img" src="" alt="">
+  <p class="lightbox-caption" id="lightbox-cap"></p>
+</div>
 
 <!-- ── PUBLICATIONS ── -->
 <section id="publications">
@@ -715,7 +880,8 @@
         <span class="pub-year">2026</span>
         <div>
           <p class="pub-title">Transcriptomic Insights into Salinity Responses in <em>Roystonea oleracea</em> Under Freshwater and Saline Field Conditions</p>
-          <p class="pub-journal">Preprint / In Review</p>
+          <p class="pub-journal">Journal of Plant Biology and Crop Research · MedDocs Publishers</p>
+          <p class="pub-citation"><em>J. Plant Biol. Crop Res.</em> 10(1): 1113.</p>
           <p class="pub-authors">Vaishali M. Gopala, Madhugiri Nageswara-Rao, M. Patrick Griffith, Daniel A. Tucker, Sukhwinder Singh</p>
         </div>
       </div>
@@ -901,6 +1067,29 @@
       link.style.opacity = link.getAttribute('href') === `#${current}` ? '1' : '0.75';
       link.style.fontWeight = link.getAttribute('href') === `#${current}` ? '500' : '400';
     });
+  });
+
+  // Lightbox
+  function openLightbox(el) {
+    const img = el.querySelector('img');
+    const cap = el.querySelector('.gallery-caption');
+    document.getElementById('lightbox-img').src = img.src;
+    document.getElementById('lightbox-img').alt = img.alt;
+    document.getElementById('lightbox-cap').innerHTML = cap ? cap.innerHTML : '';
+    document.getElementById('lightbox').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox(e) {
+    if (e.target === document.getElementById('lightbox') || e.target.classList.contains('lightbox-close')) {
+      document.getElementById('lightbox').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.getElementById('lightbox').classList.remove('active');
+      document.body.style.overflow = '';
+    }
   });
 </script>
 </body>
